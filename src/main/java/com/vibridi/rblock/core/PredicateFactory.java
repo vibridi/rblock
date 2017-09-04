@@ -21,13 +21,13 @@ public class PredicateFactory {
 	}
 
 	
-	public Set<BlockingPredicate<?>> instantiateAll(List<String> fields) throws Exception { 
-		Set<BlockingPredicate<?>> set = new HashSet<>();
+	public Set<BlockingPredicate> instantiateAll(List<String> fields) throws Exception { 
+		Set<BlockingPredicate> set = new HashSet<>();
 		
 		for(String field : fields) {
 			for(String clazz : genericPredicates.keySet()) {
 				ClassLoader cl = genericPredicates.getOrDefault(clazz, this.getClass().getClassLoader());
-				BlockingPredicate<?> pred = (BlockingPredicate<?>) cl.loadClass(clazz).getConstructor(String.class).newInstance(field);
+				BlockingPredicate pred = (BlockingPredicate) cl.loadClass(clazz).getConstructor(String.class).newInstance(field);
 				set.add(pred);
 			}
 		}

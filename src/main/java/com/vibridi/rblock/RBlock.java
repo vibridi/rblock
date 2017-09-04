@@ -1,16 +1,15 @@
 package com.vibridi.rblock;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.Set;
 
+import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.BlockingPredicate;
 
 public class RBlock {
 
 	
 	
-	public static Set<BlockingPredicate<?>> learn(Set<?> B, Set<?> R, Set<BlockingPredicate<?>> P, int e, int h) {
+	public static BlockingFunction learn(Set<?> B, Set<?> R, Set<BlockingPredicate> P, int e, int h) {
 		double t = (double) P.size();
 		double b = (double) B.size();
 		
