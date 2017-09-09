@@ -4,15 +4,18 @@ import static java.util.stream.Collectors.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BlockingFunction {
 
 	private List<BlockingPredicate> predicates;
+	private Map<String,Set<Pair>> pairs;
 	
 	public BlockingFunction(List<BlockingPredicate> predicates) {
 		this.predicates = predicates;
+		this.pairs = null;
 	}
-	
 	
 	public void block(List<Map<String,String>> records) {
 		records.forEach(r -> {
@@ -20,30 +23,22 @@ public class BlockingFunction {
 				p.index(r);
 			});
 		});
-		
-		// return something
-		
+	}
+	
+	public Map<String,Set<Pair>> getAll() {
+		if(pairs == null)
+			pairs = predicates.stream().collect(toMap(BlockingPredicate::getName, BlockingPredicate::getPairs));
+		return pairs;
+	}
+	
+	public Set<Pair> getUniquePairs() {
+		if(pairs == null)
+			getAll();
+		return pairs.values().stream().flatMap(s -> s.stream()).collect(toSet());
 	}
 
-	
-	
-	/*
-	 * 
-	 * This is achieved by applying the indexing function for every blocking predicate or conjunction 
-	 * in the learned blocking function to every record in the test dataset. 
-	 * 
-	 * Thus, an inverted index is constructed for each predicate or conjunction in the blocking function. 
-	 * In each inverted index, every key is associated with a list of instances for which the indexing function 
-	 * of the corresponding predicate returns the key value. 
-	 * 
-	 * index -> inverted index map[key, list[record]]
-	 * 
-	 * 
-	 * Disjunctive and DNF blocking can then be performed by iterating over every key in all inverted indices 
-	 * and returning all pairs of records that occur in the same list for any key.
-	 * 
-	 * 
-	 */
-	
+	public void save() {
+		
+	} // it will probably be useful to save the learned predicates somewhere
 	
 }
