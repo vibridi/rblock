@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class BlockingPredicate {
+public abstract class BlockingPredicate<T> {
 	
 	protected final String fieldName;
 	protected final String idName;
-	protected Map<Set<String>,List<String>> index;
+	protected Map<Set<T>,List<String>> index;
 	
 	public BlockingPredicate(String idName, String fieldName) {
 		this.idName = idName;
@@ -21,13 +21,14 @@ public abstract class BlockingPredicate {
 		index = new HashMap<>();
 	}
 	
-	public abstract Set<String> computeKey(String fieldValue);
+	public abstract Set<T> computeKey(String fieldValue);
+	public abstract boolean isEmpty(T value);
 	public abstract String getName();
 	
 	// assumes that all records are unique. the list in the index doesn't check for duplicates so if you had a malformed 
 	// database you could make an inverted index with the same record appearing two times for a certain key.
-	public Set<String> index(Map<String,String> record) {
-		Set<String> kb = computeKey(record.get(fieldName));		
+	public Set<T> index(Map<String,String> record) {
+		Set<T> kb = computeKey(record.get(fieldName));		
 		if(kb.size() < 1 || (kb.size() == 1 && kb.contains("")))
 			return kb;
 		
@@ -47,9 +48,9 @@ public abstract class BlockingPredicate {
 //		return equals(s1,s2);
 //	}
 	
-	public boolean equals(Set<String> k1, Set<String> k2) {
-		for(String s : k1) {
-			if(s.length() > 0 && k2.contains(s))
+	public boolean equals(Set<T> k1, Set<T> k2) {
+		for(T s : k1) {
+			if(!isEmpty(s) && k2.contains(s))
 				return true;
 		}
 		return false;

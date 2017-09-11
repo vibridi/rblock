@@ -16,7 +16,9 @@ import org.junit.Test;
 import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.Pair;
 import com.vibridi.rblock.helpers.DataUtils;
+import com.vibridi.rblock.predicate.CommonToken;
 import com.vibridi.rblock.predicate.ExactMatch;
+import com.vibridi.rblock.predicate.OffByXInteger;
 
 public class MainTest {
 
@@ -62,7 +64,7 @@ public class MainTest {
 	}
 	
 	@Test
-	public void testIndexing() throws FileNotFoundException, IOException {
+	public void testIndexingExactMatch() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
 		BlockingFunction func = new BlockingFunction(Arrays.asList(new ExactMatch("ID", "LAST")));
 		func.block(records);
@@ -82,6 +84,36 @@ public class MainTest {
 		assertTrue(m.get("exactLAST").size() == 6);
 		assertTrue(m.get("exactTITLE").size() == 3);
 		assertTrue(func.getUniquePairs().size() == 8);
+	}
+	
+	@Test
+	public void testIndexingCommonToken() throws FileNotFoundException, IOException {
+		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
+		BlockingFunction func = new BlockingFunction(Arrays.asList(
+				new CommonToken("ID", "TITLE")));
+		
+		func.block(records);
+		
+		Set<Pair> p = func.getUniquePairs();
+		assertTrue(p.size() == 6);
+		assertTrue(p.contains(new Pair("3","19")));
+		assertTrue(p.contains(new Pair("2","3")));
+	}
+	
+	@Test
+	public void testOffByXInteger() throws FileNotFoundException, IOException {
+		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
+		BlockingFunction func = new BlockingFunction(Arrays.asList(
+				new OffByXInteger("ID", "SALARY", 2)));
+		
+		func.block(records);
+		
+		Set<Pair> p = func.getUniquePairs();
+		
+		assertTrue(p.size() == 4);
+		assertTrue(p.contains(new Pair("6","9")));		// same number
+		assertTrue(p.contains(new Pair("17","18")));	// off by 1
+		assertTrue(p.contains(new Pair("16","18")));	// off by 2
 	}
 	
 	
