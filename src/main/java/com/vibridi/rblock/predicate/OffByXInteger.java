@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,7 @@ public class OffByXInteger extends BlockingPredicate<Integer> {
 	}
 
 	@Override
-	public boolean equals(Set<Integer> k1, Set<Integer> k2) {
+	public boolean equals(Collection<Integer> k1, Collection<Integer> k2) {
 		Set<Integer> kmin = new HashSet<>(k1.size() < k2.size() ? k1 : k2);
 		List<Integer> kmax = new ArrayList<>(kmin == k1 ? k2 : k1);
 		Collections.sort(kmax);
@@ -47,7 +48,7 @@ public class OffByXInteger extends BlockingPredicate<Integer> {
 	
 	@Override
 	public String getName() {
-		return "offx".concat(fieldName);
+		return "off".concat(Integer.toString(x)).concat(fieldName);
 	}
 
 	@Override

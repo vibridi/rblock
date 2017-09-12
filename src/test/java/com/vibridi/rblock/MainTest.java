@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,9 @@ import org.junit.Test;
 import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.Pair;
 import com.vibridi.rblock.helpers.DataUtils;
+import com.vibridi.rblock.helpers.IOUtils;
+import com.vibridi.rblock.helpers.LangUtils;
+import com.vibridi.rblock.predicate.CommonNGram;
 import com.vibridi.rblock.predicate.CommonToken;
 import com.vibridi.rblock.predicate.ExactMatch;
 import com.vibridi.rblock.predicate.OffByXInteger;
@@ -65,7 +69,7 @@ public class MainTest {
 	
 	@Test
 	public void testIndexingExactMatch() throws FileNotFoundException, IOException {
-		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
 		BlockingFunction func = new BlockingFunction(Arrays.asList(new ExactMatch("ID", "LAST")));
 		func.block(records);
 		
@@ -88,7 +92,7 @@ public class MainTest {
 	
 	@Test
 	public void testIndexingCommonToken() throws FileNotFoundException, IOException {
-		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
 		BlockingFunction func = new BlockingFunction(Arrays.asList(
 				new CommonToken("ID", "TITLE")));
 		
@@ -102,7 +106,7 @@ public class MainTest {
 	
 	@Test
 	public void testOffByXInteger() throws FileNotFoundException, IOException {
-		List<Map<String, String>> records = DataUtils.readCSV("/employees-20.csv");
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
 		BlockingFunction func = new BlockingFunction(Arrays.asList(
 				new OffByXInteger("ID", "SALARY", 2)));
 		
@@ -114,7 +118,113 @@ public class MainTest {
 		assertTrue(p.contains(new Pair("6","9")));		// same number
 		assertTrue(p.contains(new Pair("17","18")));	// off by 1
 		assertTrue(p.contains(new Pair("16","18")));	// off by 2
+		
+		func = new BlockingFunction(Arrays.asList(
+				new OffByXInteger("ID", "SALARY", 0)));
+		
+		func.block(records);
+		
+		p = func.getUniquePairs();
+		
+		assertTrue(p.size() == 1);
+		assertTrue(p.contains(new Pair("6","9")));		// same number
 	}
 	
+	@Test
+	public void testOffByXIntegerOnNonNumbers() throws FileNotFoundException, IOException {
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
+		BlockingFunction func = new BlockingFunction(Arrays.asList(
+				new OffByXInteger("ID", "LAST", 2)));
+		
+		func.block(records);
+		
+		Set<Pair> p = func.getUniquePairs();
+		
+		assertTrue(p.size() == 0);
+	}
+	
+	@Test
+	public void testNgram() {
+		String s = "new zealand";
+		List<String> key = new ArrayList<>(Arrays.asList(
+				"new", "ew ", "w z", " ze", "zea", "eal", "ala", "lan", "and"));
+		List<String> grams = LangUtils.ngram(s, 3);
+		assertTrue(key.containsAll(grams));
+		assertTrue(key.removeAll(grams) && key.size() == 0);
+		
+		key = new ArrayList<>(Arrays.asList(
+				"new ", "ew z", "w ze", " zea", "zeal", "eala", "alan", "land"));
+		grams = LangUtils.ngram(s, 4);
+		assertTrue(key.containsAll(grams));
+		assertTrue(key.removeAll(grams) && key.size() == 0);
+		
+		s = "ne";
+		key = new ArrayList<>(Arrays.asList("ne"));
+		grams = LangUtils.ngram(s, 4);
+		assertTrue(key.containsAll(grams));
+		assertTrue(key.removeAll(grams) && key.size() == 0);
+	}
+	
+	@Test
+	public void testCommonNgram() throws FileNotFoundException, IOException {
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-5.csv");
+		BlockingFunction func = new BlockingFunction(Arrays.asList(
+				new CommonNGram("ID", "FIRST", 3),
+				new CommonNGram("ID", "TITLE", 3)));
+		
+		func.block(records);
+		
+		Set<Pair> p = func.getUniquePairs();
+		
+		assertTrue(p.size() == 2);
+		assertTrue(p.contains(new Pair("3","5")));		// on FIRST
+		assertTrue(p.contains(new Pair("2","3")));		// on TITLE
+	}
+	
+	@Test
+	public void testTF() {
+		String s1 = "The game of life is a game of everlasting learning";
+		List<String> l1 = Arrays.asList(s1.split("[^\\w]"));
+		Map<String,Double> tf = DataUtils.termFreq(l1);
+		for(String t : l1) {
+			if(t.equalsIgnoreCase("game") || t.equalsIgnoreCase("of"))
+				assertTrue(tf.get(t) == 0.2);
+			else
+				assertTrue(tf.get(t) == 0.1);
+		}
+		
+		s1 = "The unexamined life is not worth living";
+		l1 = Arrays.asList(s1.split("[^\\w]"));
+		tf = DataUtils.termFreq(l1);
+		for(String t : l1) {
+			assertTrue(tf.get(t) == (1.0 / 7.0));
+		}
+		
+		s1 = "abb abb abb";
+		l1 = Arrays.asList(s1.split("[^\\w]"));
+		tf = DataUtils.termFreq(l1);
+		assertTrue(tf.size() == 1);
+		for(String t : l1) {
+			assertTrue(tf.get(t) == 1.0);
+		}
+		
+		s1 = "";
+		l1 = Arrays.asList(s1.split("[^\\w]"));
+		tf = DataUtils.termFreq(l1);
+		assertTrue(tf.size() == 0);
+	}
+	
+	@Test
+	public void testIDF() {
+		String s1 = "The game of life is a game of everlasting learning";
+		String s2 = "The unexamined life is not worth living";
+		
+		List<String> l1 = Arrays.asList(s1.split("[^\\w]"));
+		List<String> l2 = Arrays.asList(s2.split("[^\\w]"));
+		
+		Map<String,Double> idf = DataUtils.invDocFreq(l1, l2);
+		System.out.println(idf.toString());
+		
+	}
 	
 }

@@ -1,16 +1,17 @@
 package com.vibridi.rblock.predicate;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.vibridi.rblock.core.BlockingPredicate;
 
-public class ExactMatch extends BlockingPredicate<String> {
-	
-	public ExactMatch(String idName, String fieldName) {
+public class NCharPrefix extends BlockingPredicate<String> {
+
+	private int n; 
+
+	public NCharPrefix(String idName, String fieldName, int n) {
 		super(idName, fieldName);
+		this.n = n;
 	}
 
 	@Override
@@ -18,18 +19,18 @@ public class ExactMatch extends BlockingPredicate<String> {
 		Set<String> keys = new HashSet<>();
 		if(fieldValue == null || fieldValue.length() == 0)
 			return keys;
-		keys.add(fieldValue);
+		keys.add(fieldValue.substring(0, Math.min(n, fieldValue.length())));
 		return keys;
-	}
-
-	@Override
-	public String getName() {
-		return "exact".concat(fieldName);
 	}
 
 	@Override
 	public boolean isEmpty(String value) {
 		return value.isEmpty();
+	}
+
+	@Override
+	public String getName() {
+		return Integer.toString(n).concat("pref").concat(fieldName);
 	}
 
 }

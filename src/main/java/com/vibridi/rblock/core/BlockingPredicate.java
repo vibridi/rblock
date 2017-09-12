@@ -1,9 +1,8 @@
 package com.vibridi.rblock.core;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +12,7 @@ public abstract class BlockingPredicate<T> {
 	
 	protected final String fieldName;
 	protected final String idName;
-	protected Map<Set<T>,List<String>> index;
+	protected Map<Collection<T>,List<String>> index;
 	
 	public BlockingPredicate(String idName, String fieldName) {
 		this.idName = idName;
@@ -21,14 +20,14 @@ public abstract class BlockingPredicate<T> {
 		index = new HashMap<>();
 	}
 	
-	public abstract Set<T> computeKey(String fieldValue);
+	public abstract Collection<T> computeKey(String fieldValue);
 	public abstract boolean isEmpty(T value);
 	public abstract String getName();
 	
 	// assumes that all records are unique. the list in the index doesn't check for duplicates so if you had a malformed 
 	// database you could make an inverted index with the same record appearing two times for a certain key.
-	public Set<T> index(Map<String,String> record) {
-		Set<T> kb = computeKey(record.get(fieldName));		
+	public Collection<T> index(Map<String,String> record) {
+		Collection<T> kb = computeKey(record.get(fieldName));		
 		if(kb.size() < 1 || (kb.size() == 1 && kb.contains("")))
 			return kb;
 		
@@ -48,7 +47,7 @@ public abstract class BlockingPredicate<T> {
 //		return equals(s1,s2);
 //	}
 	
-	public boolean equals(Set<T> k1, Set<T> k2) {
+	public boolean equals(Collection<T> k1, Collection<T> k2) {
 		for(T s : k1) {
 			if(!isEmpty(s) && k2.contains(s))
 				return true;
