@@ -16,13 +16,13 @@ import org.junit.Test;
 
 import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.Pair;
-import com.vibridi.rblock.helpers.DataUtils;
 import com.vibridi.rblock.helpers.IOUtils;
 import com.vibridi.rblock.helpers.LangUtils;
 import com.vibridi.rblock.predicate.CommonNGram;
 import com.vibridi.rblock.predicate.CommonToken;
 import com.vibridi.rblock.predicate.ExactMatch;
 import com.vibridi.rblock.predicate.OffByXInteger;
+import com.vibridi.rblock.tfidf.TFIDFCosineDistance;
 
 public class MainTest {
 
@@ -182,49 +182,24 @@ public class MainTest {
 	}
 	
 	@Test
-	public void testTF() {
-		String s1 = "The game of life is a game of everlasting learning";
-		List<String> l1 = Arrays.asList(s1.split("[^\\w]"));
-		Map<String,Double> tf = DataUtils.termFreq(l1);
-		for(String t : l1) {
-			if(t.equalsIgnoreCase("game") || t.equalsIgnoreCase("of"))
-				assertTrue(tf.get(t) == 0.2);
-			else
-				assertTrue(tf.get(t) == 0.1);
-		}
+	public void testTFIDF() {
+		String s1 = "An apple a day keeps the doctor away";
+		String s2 = "I normally eat an apple every day";
+
+		double d = new TFIDFCosineDistance(s1,s2).calculate();
+		assertTrue(d > 0.4 && d < 0.41);
 		
-		s1 = "The unexamined life is not worth living";
-		l1 = Arrays.asList(s1.split("[^\\w]"));
-		tf = DataUtils.termFreq(l1);
-		for(String t : l1) {
-			assertTrue(tf.get(t) == (1.0 / 7.0));
-		}
+		s1 = "An apple a day keeps the doctor away";
+		s2 = "An apple a day keeps the doctor away";
+
+		d = new TFIDFCosineDistance(s1,s2).calculate();
+		assertTrue(d == 1.0);
 		
-		s1 = "abb abb abb";
-		l1 = Arrays.asList(s1.split("[^\\w]"));
-		tf = DataUtils.termFreq(l1);
-		assertTrue(tf.size() == 1);
-		for(String t : l1) {
-			assertTrue(tf.get(t) == 1.0);
-		}
-		
-		s1 = "";
-		l1 = Arrays.asList(s1.split("[^\\w]"));
-		tf = DataUtils.termFreq(l1);
-		assertTrue(tf.size() == 0);
+		s1 = "An apple a day keeps the doctor away";
+		s2 = "Totally unrelated document";
+
+		d = new TFIDFCosineDistance(s1,s2).calculate();
+		assertTrue(d == 0.0);
 	}
-	
-	@Test
-	public void testIDF() {
-		String s1 = "The game of life is a game of everlasting learning";
-		String s2 = "The unexamined life is not worth living";
 		
-		List<String> l1 = Arrays.asList(s1.split("[^\\w]"));
-		List<String> l2 = Arrays.asList(s2.split("[^\\w]"));
-		
-		Map<String,Double> idf = DataUtils.invDocFreq(l1, l2);
-		System.out.println(idf.toString());
-		
-	}
-	
 }

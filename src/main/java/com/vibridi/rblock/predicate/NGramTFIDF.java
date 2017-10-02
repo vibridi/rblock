@@ -2,18 +2,17 @@ package com.vibridi.rblock.predicate;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import com.vibridi.rblock.core.BlockingPredicate;
-import com.vibridi.rblock.helpers.DataUtils;
 import com.vibridi.rblock.helpers.LangUtils;
+import com.vibridi.rblock.tfidf.TFIDFCosineDistance;
 
-public class NGramTFIDFCosine extends BlockingPredicate<String> {
+public class NGramTFIDF extends BlockingPredicate<String> {
 
 	private int n;
 	private double d;
 	
-	public NGramTFIDFCosine(String idName, String fieldName, int n, double d) {
+	public NGramTFIDF(String idName, String fieldName, int n, double d) {
 		super(idName, fieldName);
 		this.n = n;
 		this.d = d;	
@@ -32,14 +31,9 @@ public class NGramTFIDFCosine extends BlockingPredicate<String> {
 	}
 	
 	@Override
-	public boolean equals(Collection<String> k1, Collection<String> k2) {
-		Map<String,Double> tf1 = DataUtils.termFreq(k1);
-		Map<String,Double> tf2 = DataUtils.termFreq(k2);
-		
-		
-		
-		
-		return false;
+	public boolean equals(Collection<String> k1, Collection<String> k2) {		
+		double dx = new TFIDFCosineDistance(k1,k2).calculate();
+		return dx >= d;
 	}
 
 	@Override
