@@ -6,10 +6,10 @@ import java.util.Set;
 import com.vibridi.rblock.core.BlockingPredicate;
 
 public class NCharPrefix extends BlockingPredicate<String> {
-
+	
 	private int n; 
 
-	public NCharPrefix(String idName, String fieldName, int n) {
+	public NCharPrefix(String idName, String fieldName, Integer n) {
 		super(idName, fieldName);
 		this.n = n;
 	}

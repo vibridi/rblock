@@ -8,7 +8,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.vibridi.rblock.helpers.PredicateDefinition;
+import com.vibridi.rblock.predicate.CommonNGram;
+
 public abstract class BlockingPredicate<T> {
+	
+	public enum Predicate {
+		EXACT_MATCH,
+		N_CHAR_PREFIX,
+		COMMON_TOKEN,
+		COMMON_N_GRAM,
+		N_GRAM_TFIDF,
+		OFF_BY_X_INTEGER
+	}
 	
 	protected final String fieldName;
 	protected final String idName;
@@ -24,7 +36,12 @@ public abstract class BlockingPredicate<T> {
 	public abstract boolean isEmpty(T value);
 	public abstract String getName();
 	
-	// assumes that all records are unique. the list in the index doesn't check for duplicates so if you had a malformed 
+	@Override
+	public String toString() {
+		return getName();
+	}
+	
+	// Assumes that all records are unique based on a master key. The list in the index doesn't check for duplicates so if you had a malformed 
 	// database you could make an inverted index with the same record appearing two times for a certain key.
 	public Collection<T> index(Map<String,String> record) {
 		Collection<T> kb = computeKey(record.get(fieldName));		
@@ -34,7 +51,7 @@ public abstract class BlockingPredicate<T> {
 		index.putIfAbsent(kb, new ArrayList<>()); 	// this compares hash codes
 		
 		index.keySet().forEach(ka -> { 				// this tests for predicate equality (i.e. intersection)
-			if(equals(ka,kb))
+			if(keysEqual(ka,kb))
 				index.get(ka).add(record.get(idName));
 		});
 		
@@ -47,7 +64,7 @@ public abstract class BlockingPredicate<T> {
 //		return equals(s1,s2);
 //	}
 	
-	public boolean equals(Collection<T> k1, Collection<T> k2) {
+	public boolean keysEqual(Collection<T> k1, Collection<T> k2) {
 		for(T s : k1) {
 			if(!isEmpty(s) && k2.contains(s))
 				return true;

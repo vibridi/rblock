@@ -7,10 +7,10 @@ import com.vibridi.rblock.core.BlockingPredicate;
 import com.vibridi.rblock.helpers.LangUtils;
 
 public class CommonNGram extends BlockingPredicate<String> {
-
+	
 	private final int n;
 	
-	public CommonNGram(String idName, String fieldName, int n) {
+	public CommonNGram(String idName, String fieldName, Integer n) {
 		super(idName, fieldName);
 		this.n = n;
 	}

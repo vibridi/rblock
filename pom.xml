@@ -11,6 +11,8 @@
 
 	<properties>
 		<junit.version>4.12</junit.version>
+		<commons-csv.version>1.5</commons-csv.version>
+		<spring-context.version>5.0.0.RELEASE</spring-context.version>
 	</properties>
 
 	<dependencies>
@@ -23,8 +25,15 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
-			<version>1.5</version>
+			<version>${commons-csv.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring-context.version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

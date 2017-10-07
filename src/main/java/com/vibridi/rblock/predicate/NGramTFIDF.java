@@ -8,11 +8,11 @@ import com.vibridi.rblock.helpers.LangUtils;
 import com.vibridi.rblock.tfidf.TFIDFCosineDistance;
 
 public class NGramTFIDF extends BlockingPredicate<String> {
-
+	
 	private int n;
 	private double d;
 	
-	public NGramTFIDF(String idName, String fieldName, int n, double d) {
+	public NGramTFIDF(String idName, String fieldName, Integer n, Double d) {
 		super(idName, fieldName);
 		this.n = n;
 		this.d = d;	
@@ -31,7 +31,7 @@ public class NGramTFIDF extends BlockingPredicate<String> {
 	}
 	
 	@Override
-	public boolean equals(Collection<String> k1, Collection<String> k2) {		
+	public boolean keysEqual(Collection<String> k1, Collection<String> k2) {		
 		double dx = new TFIDFCosineDistance(k1,k2).calculate();
 		return dx >= d;
 	}

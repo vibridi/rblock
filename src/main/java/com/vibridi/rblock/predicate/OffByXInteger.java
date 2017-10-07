@@ -14,10 +14,10 @@ import com.vibridi.rblock.core.BlockingPredicate;
 import com.vibridi.rblock.helpers.LangUtils;
 
 public class OffByXInteger extends BlockingPredicate<Integer> {
-
+	
 	private final int x;
 	
-	public OffByXInteger(String idName, String fieldName, int x) {
+	public OffByXInteger(String idName, String fieldName, Integer x) {
 		super(idName, fieldName);
 		this.x = Math.abs(x);
 	}
@@ -35,7 +35,7 @@ public class OffByXInteger extends BlockingPredicate<Integer> {
 	}
 
 	@Override
-	public boolean equals(Collection<Integer> k1, Collection<Integer> k2) {
+	public boolean keysEqual(Collection<Integer> k1, Collection<Integer> k2) {
 		Set<Integer> kmin = new HashSet<>(k1.size() < k2.size() ? k1 : k2);
 		List<Integer> kmax = new ArrayList<>(kmin == k1 ? k2 : k1);
 		Collections.sort(kmax);

@@ -9,10 +9,10 @@ import java.util.stream.Collectors;
 
 public class BlockingFunction {
 
-	private List<BlockingPredicate> predicates;
+	private List<BlockingPredicate<?>> predicates;
 	private Map<String,Set<Pair>> pairs;
 	
-	public BlockingFunction(List<BlockingPredicate> predicates) {
+	public BlockingFunction(List<BlockingPredicate<?>> predicates) {
 		this.predicates = predicates;
 		this.pairs = null;
 	}

@@ -15,12 +15,17 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.vibridi.rblock.core.BlockingFunction;
+import com.vibridi.rblock.core.BlockingPredicate;
 import com.vibridi.rblock.core.Pair;
+import com.vibridi.rblock.core.PredicateFactory;
 import com.vibridi.rblock.helpers.IOUtils;
 import com.vibridi.rblock.helpers.LangUtils;
+import com.vibridi.rblock.helpers.PredicateDefinition;
 import com.vibridi.rblock.predicate.CommonNGram;
 import com.vibridi.rblock.predicate.CommonToken;
 import com.vibridi.rblock.predicate.ExactMatch;
+import com.vibridi.rblock.predicate.NCharPrefix;
+import com.vibridi.rblock.predicate.NGramTFIDF;
 import com.vibridi.rblock.predicate.OffByXInteger;
 import com.vibridi.rblock.tfidf.TFIDFCosineDistance;
 
@@ -200,6 +205,45 @@ public class MainTest {
 
 		d = new TFIDFCosineDistance(s1,s2).calculate();
 		assertTrue(d == 0.0);
+	}
+	
+	@Test
+	public void testRecursiveInstantiation() throws Exception {
+		List<PredicateDefinition> definitions = new ArrayList<>();
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
+		List<String> fields = new ArrayList<>(records.get(0).keySet());
+		
+		Integer[] p1 = new Integer[] {2, 3, 4};
+		Double[] p2 = new Double[] {2.0, 3.0, 4.0};
+		Float[] p3 = new Float[] {0.4f, 0.5f, 0.6f};
+		Integer[] p4 = new Integer[] {-1, 0, 2};
+		definitions.add(PredicateDefinition.defineFor(fields, TestBlocker.class, p1, p2, p3, p4));
+		Set<BlockingPredicate<?>> ps = PredicateFactory.instantiateAll("ID", definitions);
+		
+		assertTrue(ps.size() == p1.length * p2.length * p3.length * p4.length * (fields.size() - 1));
+	}
+	
+	@Test
+	public void testPredicateInstantiation() throws Exception {
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
+		List<String> fields = new ArrayList<>(records.get(0).keySet());
+		
+		List<PredicateDefinition> definitions = new ArrayList<>();
+		definitions.add(PredicateDefinition.defineFor(fields, ExactMatch.class, new Object[0]));
+		definitions.add(PredicateDefinition.defineFor(fields, CommonToken.class, new Object[0]));
+		definitions.add(PredicateDefinition.defineFor(fields, CommonNGram.class, new Integer[] {2,4,6}));
+		definitions.add(PredicateDefinition.defineFor(fields, NCharPrefix.class, new Integer[] {3,5,7})); 
+		definitions.add(PredicateDefinition.defineFor(fields, OffByXInteger.class, new Integer[] {0,1,10})); 
+		definitions.add(PredicateDefinition.defineFor(fields, NGramTFIDF.class, new Integer[] {3,5}, new Double[] {0.2,0.4,0.6,0.8}));
+		Set<BlockingPredicate<?>> ps = PredicateFactory.instantiateAll("ID", definitions);
+		assertTrue(ps.size() == 95);		
+	}
+	
+	@Test
+	public void testSpringContextInstantiation() throws Exception {
+		String path = MainTest.class.getResource("/applicationContext.xml").toString();
+		Set<BlockingPredicate<?>> ps = PredicateFactory.instantiateAll(path);
+		assertTrue(ps.size() == 95);
 	}
 		
 }

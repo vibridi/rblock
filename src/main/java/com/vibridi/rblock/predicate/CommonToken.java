@@ -7,7 +7,7 @@ import java.util.Set;
 import com.vibridi.rblock.core.BlockingPredicate;
 
 public class CommonToken extends BlockingPredicate<String> {
-
+	
 	public CommonToken(String idName, String fieldName) {
 		super(idName, fieldName);
 	}

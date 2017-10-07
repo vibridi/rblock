@@ -1,8 +1,6 @@
 package com.vibridi.rblock.predicate;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.vibridi.rblock.core.BlockingPredicate;

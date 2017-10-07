@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RBlockConfig>
+	<!-- ID,LAST,FIRST,MIDDLE,TITLE,SALARY -->
+	<Fields pk="ID">
+		<Value id="0">LAST</Value>
+		<Value id="1">FIRST</Value>
+		<Value id="2">MIDDLE</Value>
+		<Value id="3">TITLE</Value>
+		<Value id="4">SALARY</Value>
+	</Fields>
+	<Predicates>
+		<Predicate class="com.vibridi.rblock.predicate.ExactMatch">
+			<Fields ref="*" />
+		</Predicate>
+		<Predicate class="com.vibridi.rblock.predicate.CommonToken">
+			<Fields ref="*" />
+		</Predicate>
+		<Predicate class="com.vibridi.rblock.predicate.CommonNGram">
+			<Fields ref="*" />
+			<AdditionalConstructorArg type="java.lang.Integer" values="2,4,6" />
+		</Predicate>
+		<Predicate class="com.vibridi.rblock.predicate.NCharPrefix">
+			<Fields ref="*" />
+			<AdditionalConstructorArg type="java.lang.Integer" values="3,5,7" />
+		</Predicate>
+		<Predicate class="com.vibridi.rblock.predicate.OffByXInteger">
+			<Fields ref="4" />
+			<AdditionalConstructorArg type="java.lang.Integer" values="0,1,10" />
+		</Predicate>
+		<Predicate class="com.vibridi.rblock.predicate.NGramTFIDF">
+			<Fields ref="*" />
+			<AdditionalConstructorArg type="java.lang.Integer" values="3,5" />
+			<AdditionalConstructorArg type="java.lang.Double" values="0.2,0.4,0.6,0.8" />
+		</Predicate>
+	</Predicates>
+</RBlockConfig>

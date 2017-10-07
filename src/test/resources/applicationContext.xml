@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	<bean id="pk" class="java.lang.String">
+		<constructor-arg value="ID" />
+	</bean>
+
+	<util:list id="definitions" value-type="com.vibridi.rblock.helpers.PredicateDefinition">
+		<ref bean="defExactMatch"/>
+		<ref bean="defCommonToken"/>
+		<ref bean="defCommonNGram"/> 
+		<ref bean="defNCharPrefix"/>
+		<ref bean="defOffByXInteger"/>
+		<ref bean="defNGramTFIDF"/>
+	</util:list>
+
+	<util:list id="fieldsList" value-type="java.lang.String">
+		<value>LAST</value>
+		<value>FIRST</value>
+		<value>MIDDLE</value>
+		<value>TITLE</value>
+		<value>SALARY</value>
+	</util:list>
+	
+	<!-- EXACT MATCH -->
+	<bean id="defExactMatch" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.ExactMatch"/>
+		<constructor-arg index="2"><list/></constructor-arg>
+	</bean>
+	
+	<!-- COMMON TOKEN -->
+	<bean id="defCommonToken" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.CommonToken"/>
+		<constructor-arg index="2"><list/></constructor-arg>
+	</bean>
+	
+	<!-- COMMON NGRAM -->
+	<bean id="defCommonNGram" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.CommonNGram"/>
+		<constructor-arg index="2">
+			<list>
+				<array value-type="java.lang.Integer">
+					<value>2</value>
+					<value>4</value>
+					<value>6</value>
+				</array>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<!-- N-CHAR PREFIX -->
+	<bean id="defNCharPrefix" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.NCharPrefix"/>
+		<constructor-arg index="2">
+			<list>
+				<array value-type="java.lang.Integer">
+					<value>3</value>
+					<value>5</value>
+					<value>7</value>
+				</array>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<!-- OFF BY X INTEGER -->
+	<bean id="defOffByXInteger" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.OffByXInteger"/>
+		<constructor-arg index="2">
+			<list>
+				<array value-type="java.lang.Integer">
+					<value>0</value>
+					<value>1</value>
+					<value>10</value>
+				</array>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<!-- N-GRAM TF-DF -->
+	<bean id="defNGramTFIDF" class="com.vibridi.rblock.helpers.PredicateDefinition" factory-method="defineFor">
+		<constructor-arg index="0" ref="fieldsList"/>
+		<constructor-arg index="1" type="java.lang.Class" value="com.vibridi.rblock.predicate.NGramTFIDF"/>
+		<constructor-arg index="2">
+			<list>
+				<array value-type="java.lang.Integer">
+					<value>3</value>
+					<value>5</value>
+				</array>
+				<array value-type="java.lang.Double">
+					<value>0.2</value>
+					<value>0.4</value>
+					<value>0.6</value>
+					<value>0.8</value>
+				</array>
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>
