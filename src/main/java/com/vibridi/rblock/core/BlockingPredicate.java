@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.vibridi.rblock.helpers.PredicateDefinition;
-import com.vibridi.rblock.predicate.CommonNGram;
-
 public abstract class BlockingPredicate<T> {
 	
 	public enum Predicate {
@@ -32,6 +29,11 @@ public abstract class BlockingPredicate<T> {
 		index = new HashMap<>();
 	}
 	
+	/**
+	 * Computes the key used in the inverted index.
+	 * @param fieldValue Field value from which the key is computed
+	 * @return The key as a collection of objects. Must be not null.
+	 */
 	public abstract Collection<T> computeKey(String fieldValue);
 	public abstract boolean isEmpty(T value);
 	public abstract String getName();
@@ -41,28 +43,50 @@ public abstract class BlockingPredicate<T> {
 		return getName();
 	}
 	
-	// Assumes that all records are unique based on a master key. The list in the index doesn't check for duplicates so if you had a malformed 
-	// database you could make an inverted index with the same record appearing two times for a certain key.
-	public Collection<T> index(Map<String,String> record) {
+	@Override 
+	public boolean equals(Object obj) {
+		if(obj instanceof BlockingPredicate) {
+			BlockingPredicate<?> that = (BlockingPredicate<?>) obj;
+			return this.getName().equals(that.getName());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getName().hashCode();
+	}
+	
+	
+	/**
+	 * Adds the record to an inverted index, where the key is the output of the predicate.
+	 * Assumes that all records are unique based on a master key. The list in the index doesn't check for duplicates 
+	 * so if you had a malformed database you could index the same record with itself.
+	 * @param record Record represented as a field-value map
+	 * @return 
+	 * 		<ul>
+	 * 			<li>0: the record wasn't indexed</li>
+	 * 			<li>1: the record was indexed with a new key</li>
+	 * 			<li>2+: the record was indexed and paired</li>
+	 * 		</ul>
+	 */
+	public int index(Map<String,String> record) {
+		int ret = 0;
 		Collection<T> kb = computeKey(record.get(fieldName));		
 		if(kb.size() < 1 || (kb.size() == 1 && kb.contains("")))
-			return kb;
+			return ret;
 		
 		index.putIfAbsent(kb, new ArrayList<>()); 	// this compares hash codes
 		
-		index.keySet().forEach(ka -> { 				// this tests for predicate equality (i.e. intersection)
-			if(keysEqual(ka,kb))
-				index.get(ka).add(record.get(idName));
-		});
+		for(Collection<T> ka : index.keySet()) {	// this tests for predicate equality (i.e. intersection)
+			if(keysEqual(ka,kb)) {
+				index.get(ka).add(record.get(idName));	
+				ret = Math.max(ret, index.get(ka).size());
+			}
+		}
 		
-		return kb;
+		return ret;
 	}
-	
-//	public boolean equals(String x1, String x2) {
-//		Set<String> s1 = computeKey(x1);
-//		Set<String> s2 = computeKey(x2);
-//		return equals(s1,s2);
-//	}
 	
 	public boolean keysEqual(Collection<T> k1, Collection<T> k2) {
 		for(T s : k1) {

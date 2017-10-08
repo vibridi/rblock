@@ -1,18 +1,22 @@
 package com.vibridi.rblock.core;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BlockingFunction {
 
-	private List<BlockingPredicate<?>> predicates;
+	private Set<BlockingPredicate<?>> predicates;
 	private Map<String,Set<Pair>> pairs;
 	
-	public BlockingFunction(List<BlockingPredicate<?>> predicates) {
+	/**
+	 * Forces the input predicates to be unique
+	 * @param predicates
+	 */
+	public BlockingFunction(Set<BlockingPredicate<?>> predicates) {
 		this.predicates = predicates;
 		this.pairs = null;
 	}
@@ -36,9 +40,13 @@ public class BlockingFunction {
 			getAll();
 		return pairs.values().stream().flatMap(s -> s.stream()).collect(toSet());
 	}
+	
+	public Set<BlockingPredicate<?>> getPredicates() {
+		return predicates;
+	}
 
 	public void save() {
-		
-	} // it will probably be useful to save the learned predicates somewhere
+		// TODO it will probably be useful to save the learned predicates somewhere
+	}
 	
 }

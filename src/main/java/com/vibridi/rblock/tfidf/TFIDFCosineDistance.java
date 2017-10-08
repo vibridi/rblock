@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Main logic results from a fork and debug of Hannah Cutler's repo:
+ * Main logic of this class results from a fork and debug of Hannah Cutler's repo:
  * https://github.com/hcutler/tf-idf
  * 
  */

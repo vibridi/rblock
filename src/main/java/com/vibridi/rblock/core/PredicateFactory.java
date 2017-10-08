@@ -1,6 +1,5 @@
 package com.vibridi.rblock.core;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,10 +19,11 @@ public class PredicateFactory {
 	
 	@SuppressWarnings("unchecked")
 	public static Set<BlockingPredicate<?>> instantiateAll(String path) throws Exception {
-	    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(path);
-	    String pk = (String) ctx.getBean("pk");
-	    List<PredicateDefinition> definitions = (List<PredicateDefinition>) ctx.getBean("definitions");			
-		return instantiateAll(pk, definitions);
+	    try(ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(path)) {
+	    	String pk = (String) ctx.getBean("pk");
+	    	List<PredicateDefinition> definitions = (List<PredicateDefinition>) ctx.getBean("definitions");			
+	    	return instantiateAll(pk, definitions);
+	    }
 	}
 	
 	public static Set<BlockingPredicate<?>> instantiateAll(String idField, List<PredicateDefinition> definitions) throws Exception { 
@@ -69,6 +69,22 @@ public class PredicateFactory {
 		return list;
 	}
 	
+	/**
+	 * This is basically a depth-first search over a matrix, where the "root" is cell [0,0].<br>
+	 * Usage:
+	 * <pre>
+	 Map<Integer,Integer> map = new HashMap<>();
+	 for(int i = 0; i < source.size(); i++)
+		map.put(i, 0);
+	 allCombinations(list, source, 0, map);
+	 * </pre>
+	 * 
+	 * @param acc List filled with the combination arrays 
+	 * @param source Matrix represented as a list of arrays 
+	 * @param n Depth counter. Initial value must be 0
+	 * @param map Indices used to access the matrix. Keys must be the possible values that n can assume, i.e. the 0-indexed number
+	 * of rows in the matrix. Initial values must be 0
+	 */
 	private static void allCombinations(List<Object[]> acc, List<Object[]> source, int n, Map<Integer,Integer> map) {
 		if(n >= source.size()) {
 			add(acc, source, map);

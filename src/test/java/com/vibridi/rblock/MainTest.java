@@ -11,9 +11,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import com.vibridi.rblock.core.BlockableRecord;
 import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.BlockingPredicate;
 import com.vibridi.rblock.core.Pair;
@@ -75,7 +77,7 @@ public class MainTest {
 	@Test
 	public void testIndexingExactMatch() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
-		BlockingFunction func = new BlockingFunction(Arrays.asList(new ExactMatch("ID", "LAST")));
+		BlockingFunction func = new BlockingFunction(new HashSet<>(Arrays.asList(new ExactMatch("ID", "LAST"))));
 		func.block(records);
 		
 		Set<Pair> p = func.getUniquePairs();
@@ -83,9 +85,9 @@ public class MainTest {
 		assertTrue(p.contains(new Pair("2","7a")));
 		assertTrue(p.contains(new Pair("19","7a")));
 		
-		func = new BlockingFunction(Arrays.asList(
+		func = new BlockingFunction(new HashSet<>(Arrays.asList(
 				new ExactMatch("ID", "LAST"),
-				new ExactMatch("ID", "TITLE")));
+				new ExactMatch("ID", "TITLE"))));
 		func.block(records);
 		
 		Map<String, Set<Pair>> m = func.getAll();
@@ -98,8 +100,8 @@ public class MainTest {
 	@Test
 	public void testIndexingCommonToken() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
-		BlockingFunction func = new BlockingFunction(Arrays.asList(
-				new CommonToken("ID", "TITLE")));
+		BlockingFunction func = new BlockingFunction(new HashSet<>(Arrays.asList(
+				new CommonToken("ID", "TITLE"))));
 		
 		func.block(records);
 		
@@ -112,8 +114,8 @@ public class MainTest {
 	@Test
 	public void testOffByXInteger() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
-		BlockingFunction func = new BlockingFunction(Arrays.asList(
-				new OffByXInteger("ID", "SALARY", 2)));
+		BlockingFunction func = new BlockingFunction(new HashSet<>(Arrays.asList(
+				new OffByXInteger("ID", "SALARY", 2))));
 		
 		func.block(records);
 		
@@ -124,8 +126,8 @@ public class MainTest {
 		assertTrue(p.contains(new Pair("17","18")));	// off by 1
 		assertTrue(p.contains(new Pair("16","18")));	// off by 2
 		
-		func = new BlockingFunction(Arrays.asList(
-				new OffByXInteger("ID", "SALARY", 0)));
+		func = new BlockingFunction(new HashSet<>(Arrays.asList(
+				new OffByXInteger("ID", "SALARY", 0))));
 		
 		func.block(records);
 		
@@ -138,8 +140,8 @@ public class MainTest {
 	@Test
 	public void testOffByXIntegerOnNonNumbers() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = IOUtils.readCSV("/employees-20.csv");
-		BlockingFunction func = new BlockingFunction(Arrays.asList(
-				new OffByXInteger("ID", "LAST", 2)));
+		BlockingFunction func = new BlockingFunction(new HashSet<>(Arrays.asList(
+				new OffByXInteger("ID", "LAST", 2))));
 		
 		func.block(records);
 		
@@ -173,9 +175,9 @@ public class MainTest {
 	@Test
 	public void testCommonNgram() throws FileNotFoundException, IOException {
 		List<Map<String, String>> records = IOUtils.readCSV("/employees-5.csv");
-		BlockingFunction func = new BlockingFunction(Arrays.asList(
+		BlockingFunction func = new BlockingFunction(new HashSet<>(Arrays.asList(
 				new CommonNGram("ID", "FIRST", 3),
-				new CommonNGram("ID", "TITLE", 3)));
+				new CommonNGram("ID", "TITLE", 3))));
 		
 		func.block(records);
 		
@@ -244,6 +246,101 @@ public class MainTest {
 		String path = MainTest.class.getResource("/applicationContext.xml").toString();
 		Set<BlockingPredicate<?>> ps = PredicateFactory.instantiateAll(path);
 		assertTrue(ps.size() == 95);
+	}
+	
+	@Test
+	public void testBlockableRecord() throws Exception {
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-5.csv");
+		String idField = "ID";
+		Set<BlockableRecord> set = records.stream().map(r -> new BlockableRecord(r, idField)).collect(Collectors.toSet()); 
+		assertTrue(set.size() == records.size());	// checks uniqueness of the source records
+		
+		Map<String,String> map = new HashMap<>();
+		map.put("ID", "5");
+		map.put("LAST", "CAVALIGOS");
+		map.put("FIRST", "NICHOLAS");
+		map.put("MIDDLE", "C");
+		map.put("TITLE", "CAPTAIN-EMT");
+		map.put("SALARY", "116664");
+		BlockableRecord test = new BlockableRecord(map, idField);
+		assertTrue(set.contains(test));
+		
+		map.put("FIRST", "a different value");
+		assertTrue(set.contains(test));
+		
+		BlockableRecord test2 = new BlockableRecord(map, idField);
+		assertTrue(test.equals(test2));
+		
+		BlockableRecord test3 = new BlockableRecord(map, "FIRST");
+		assertTrue(!test.equals(test3));
+	}
+	
+	@Test(expected = IllegalStateException.class)
+	public void testBlockableRecordCtorError() {
+		Map<String,String> map = new HashMap<>();
+		map.put("ID", "5");
+		map.put("LAST", "CAVALIGOS");
+		map.put("FIRST", "NICHOLAS");
+		map.put("MIDDLE", "C");
+		map.put("TITLE", "CAPTAIN-EMT");
+		map.put("SALARY", "116664");
+		BlockableRecord test = new BlockableRecord(map, "NON_EXISTANT_ID_FIELD");
+		test.toString();
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testBlockableRecordPutError() {
+		Map<String,String> map = new HashMap<>();
+		map.put("ID", "5");
+		map.put("LAST", "CAVALIGOS");
+		map.put("FIRST", "NICHOLAS");
+		map.put("MIDDLE", "C");
+		map.put("TITLE", "CAPTAIN-EMT");
+		map.put("SALARY", "116664");
+		BlockableRecord test = new BlockableRecord(map, "ID");
+		test.put("ID", "abcd");
+	}
+	
+	@Test
+	public void testLearn() throws Exception {
+		List<Map<String, String>> records = IOUtils.readCSV("/employees-learn.csv");
+		List<String> fields = new ArrayList<>(records.get(0).keySet());
+		String id = "ID";
+		
+		List<PredicateDefinition> definitions = new ArrayList<>();
+		definitions.add(PredicateDefinition.defineFor(fields, ExactMatch.class, new Object[0]));
+		definitions.add(PredicateDefinition.defineFor(fields, CommonToken.class, new Object[0]));
+		definitions.add(PredicateDefinition.defineFor(fields, CommonNGram.class, new Integer[] {2,4,6}));
+		definitions.add(PredicateDefinition.defineFor(fields, NCharPrefix.class, new Integer[] {3,5,7})); 
+		definitions.add(PredicateDefinition.defineFor(fields, OffByXInteger.class, new Integer[] {0,1,10})); 
+		definitions.add(PredicateDefinition.defineFor(fields, NGramTFIDF.class, new Integer[] {3,5}, new Double[] {0.2,0.4,0.6,0.8}));
+		Set<BlockingPredicate<?>> ps = PredicateFactory.instantiateAll("ID", definitions);
+		
+		Set<Pair> positivePairs = new HashSet<>();
+		positivePairs.add(new Pair("1", "22"));
+		positivePairs.add(new Pair("2", "19"));
+		positivePairs.add(new Pair("12", "23"));
+		positivePairs.add(new Pair("7a", "24"));
+		positivePairs.add(new Pair("14", "25"));
+		positivePairs.add(new Pair("17", "26"));
+		positivePairs.add(new Pair("4", "27"));
+		positivePairs.add(new Pair("8", "28"));
+		positivePairs.add(new Pair("10", "16a"));
+		positivePairs.add(new Pair("6", "29"));
+		
+		Set<Pair> negativePairs = new HashSet<>();
+		for(int i = 0; i < records.size(); i++) {
+			for(int j = i+1; j < records.size(); j++) {
+				negativePairs.add(new Pair(records.get(i).get(id), records.get(j).get(id)));
+			}
+		}
+		negativePairs.removeAll(positivePairs);
+		BlockingFunction func = RBlock.learn(positivePairs, negativePairs, records, ps, id, 0, 100);
+		Set<BlockingPredicate<?>> learned = func.getPredicates();
+		assertTrue(learned.size() == 2);
+		Set<String> names = learned.stream().map(BlockingPredicate::getName).collect(Collectors.toSet());
+		assertTrue(names.contains("4gramFIRST"));
+		assertTrue(names.contains("6gramTITLE"));
 	}
 		
 }

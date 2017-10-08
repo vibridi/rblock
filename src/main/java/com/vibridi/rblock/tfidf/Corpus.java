@@ -1,5 +1,4 @@
 package com.vibridi.rblock.tfidf;
-//package ir;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,13 +1,8 @@
 package com.vibridi.rblock.tfidf;
-//package ir;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +24,7 @@ public class Document implements Comparable<Document> {
 	}
 	
 	public Document(Collection<String> collection) {
-		this((String[]) collection.toArray());
+		this(collection.toArray(new String[0]));
 	}
 	
 	public Document(String[] terms) {
