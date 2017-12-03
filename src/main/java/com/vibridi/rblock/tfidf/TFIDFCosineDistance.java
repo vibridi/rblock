@@ -23,6 +23,10 @@ public class TFIDFCosineDistance {
 	}
 	
 	public TFIDFCosineDistance(Collection<String> c1, Collection<String> c2) {
+		init(c1, c2);
+	}
+	
+	public void init(Collection<String> c1, Collection<String> c2) {
 		d1 = new Document(c1);
 		d2 = new Document(c2);
 		

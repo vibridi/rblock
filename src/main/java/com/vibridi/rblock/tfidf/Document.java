@@ -60,7 +60,12 @@ public class Document implements Comparable<Document> {
 	
 	@Override
 	public int hashCode() {
-		return terms.hashCode();
+		final int prime = 31;
+		int result = 1;
+		for(String s : terms) {
+		    result = result * prime + s.hashCode();
+		}
+		return result;
 	}
 	
 	@Override 

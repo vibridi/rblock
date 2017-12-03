@@ -1,4 +1,4 @@
-package com.vibridi.rblock;
+package com.vibridi.rblock.test;
 
 import java.util.Collection;
 

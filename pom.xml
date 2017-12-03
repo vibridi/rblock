@@ -13,6 +13,7 @@
 		<junit.version>4.12</junit.version>
 		<commons-csv.version>1.5</commons-csv.version>
 		<spring-context.version>5.0.0.RELEASE</spring-context.version>
+		<fxu.version>2.1.14-SNAPSHOT</fxu.version>
 	</properties>
 
 	<dependencies>
@@ -32,6 +33,13 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring-context.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.vibridi</groupId>
+			<artifactId>jupper</artifactId>
+			<version>1.0.0</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

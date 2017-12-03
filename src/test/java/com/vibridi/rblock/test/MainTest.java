@@ -1,4 +1,4 @@
-package com.vibridi.rblock;
+package com.vibridi.rblock.test;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import com.vibridi.rblock.RBlock;
 import com.vibridi.rblock.core.BlockableRecord;
 import com.vibridi.rblock.core.BlockingFunction;
 import com.vibridi.rblock.core.BlockingPredicate;
@@ -207,6 +208,12 @@ public class MainTest {
 
 		d = new TFIDFCosineDistance(s1,s2).calculate();
 		assertTrue(d == 0.0);
+		
+		List<String> l1 = LangUtils.ngram("lisa callaghan", 2);
+		List<String> l2 = LangUtils.ngram("elisabeth armida callaghan", 2);
+		
+		d = new TFIDFCosineDistance(l1,l2).calculate();
+		assertTrue(d > 0.72 && d < 0.73);
 	}
 	
 	@Test
@@ -334,6 +341,7 @@ public class MainTest {
 				negativePairs.add(new Pair(records.get(i).get(id), records.get(j).get(id)));
 			}
 		}
+				
 		negativePairs.removeAll(positivePairs);
 		BlockingFunction func = RBlock.learn(positivePairs, negativePairs, records, ps, id, 0, 100);
 		Set<BlockingPredicate<?>> learned = func.getPredicates();
