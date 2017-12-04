@@ -40,7 +40,6 @@ public class PredicateFactory {
 			typeArguments.addAll(pdef.getClazzes());
 			Class<?>[] typeArgumentsArray = typeArguments.toArray(new Class<?>[0]);
 			List<Object[]> combinations = allCombinations(pdef.getParameters());
-			
 			for(String field : fields) {
 				if(combinations.size() == 0) {
 					BlockingPredicate<?> pred = (BlockingPredicate<?>) cl.loadClass(pdef.getQualifiedName())
@@ -57,6 +56,7 @@ public class PredicateFactory {
 				}
 			}
 		}
+
 		return set;
 	}
 	
