@@ -66,6 +66,7 @@ public class Document implements Comparable<Document> {
 		    result = result * prime + s.hashCode();
 		}
 		return result;
+		// Array.hashCode();
 	}
 	
 	@Override 

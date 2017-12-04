@@ -32,8 +32,7 @@ public class TestBlocker extends BlockingPredicate<String> {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "test";
 	}
 
 }
