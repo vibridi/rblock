@@ -60,6 +60,9 @@ Currently there are no other contributors
 
 - implement DNF blocking
 - improve the javadocs
+- consider deriving more from java.util.function to improve interoperability
+- improve predicate hashing performance
+- test with bigger datasets
 
 ## License
 
